@@ -1,0 +1,28 @@
+name: Daily Flight Price Check
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - route: "TPE-HKG"
+            outbound: "2025-08-01"
+            return: "2025-08-08"
+          - route: "TPE-MFM"
+            outbound: "2025-08-01"
+            return: "2025-08-08"
+    steps:
+      - name: Call n8n Webhook
+        run: |
+          curl -X POST https://n8n.YOURDOMAIN.tk/webhook/flight-monitor \
+               -H "Content-Type: application/json" \
+               -d '{
+                 "route": "${{ matrix.route }}",
+                 "outbound_date": "${{ matrix.outbound }}",
+                 "return_date": "${{ matrix.return }}"
+               }'
